@@ -10,10 +10,11 @@
  */
 
 import { test as base, expect } from '@playwright/test';
-import { loadSiteConfig, type SiteConfig } from '@types/site-config.types';
+import { loadSiteConfig, type SiteConfig } from '@site-types/site-config.types';
 import { HomePage } from '@pages/home.page';
 import { NavigationPage } from '@pages/navigation.page';
 import { ContactFormPage } from '@pages/contact.page';
+import { NewsPage } from '@pages/news.page';
 
 // ── Fixture type definitions ─────────────────────────────────────────────────
 
@@ -26,6 +27,8 @@ export interface Fixtures {
   navigationPage: NavigationPage;
   /** ContactFormPage page object (does not auto-navigate) */
   contactPage: ContactFormPage;
+  /** NewsPage page object (does not auto-navigate) */
+  newsPage: NewsPage;
 }
 
 // ── Extended test object ─────────────────────────────────────────────────────
@@ -61,11 +64,21 @@ export const test = base.extend<Fixtures>({
 
   /**
    * contactPage — constructs ContactFormPage without navigating.
-   * Tests should navigate to the appropriate page first.
+   * Call contactPage.navigateToContactPage() at the start of each test,
+   * or navigate manually before calling findContactForm().
    */
   contactPage: async ({ page, siteConfig }, use) => {
     const contactPage = new ContactFormPage(page, siteConfig);
     await use(contactPage);
+  },
+
+  /**
+   * newsPage — constructs NewsPage without navigating.
+   * Call newsPage.navigateToNews() at the start of each test.
+   */
+  newsPage: async ({ page, siteConfig }, use) => {
+    const newsPage = new NewsPage(page, siteConfig);
+    await use(newsPage);
   },
 });
 

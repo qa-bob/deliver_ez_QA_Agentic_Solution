@@ -18,6 +18,15 @@ export interface SiteAuth {
   password: string;
 }
 
+// ── Known page entry ─────────────────────────────────────────────────────────
+
+export interface KnownPage {
+  /** Site-root-relative path, e.g. "/news/contact/" */
+  path: string;
+  /** Human-readable label, e.g. "Contact" */
+  label: string;
+}
+
 // ── Root site config ─────────────────────────────────────────────────────────
 
 export interface SiteConfig {
@@ -33,6 +42,11 @@ export interface SiteConfig {
   hasContactForm: boolean;
   /** List of nav item labels expected to be present */
   expectedNavItems: string[];
+  /**
+   * Explicitly confirmed page paths discovered via sitemap or manual analysis.
+   * Used by page objects to navigate directly when automated discovery fails.
+   */
+  knownPages?: KnownPage[];
   /** Viewport breakpoints to exercise */
   viewports: Array<'desktop' | 'mobile' | 'tablet'>;
   /** Skip visual regression tests for this site */
@@ -41,6 +55,8 @@ export interface SiteConfig {
   skipForms: boolean;
   /** Authentication settings */
   auth: SiteAuth;
+  /** Human-readable notes about site quirks (not used at runtime) */
+  notes?: string;
 }
 
 // ── Default values ───────────────────────────────────────────────────────────
@@ -52,6 +68,7 @@ const DEFAULT_CONFIG: SiteConfig = {
   industry: '',
   hasContactForm: false,
   expectedNavItems: [],
+  knownPages: [],
   viewports: ['desktop', 'mobile', 'tablet'],
   skipVisual: false,
   skipForms: false,
@@ -97,5 +114,6 @@ export function loadSiteConfig(configDir: string = process.cwd()): SiteConfig {
       ...DEFAULT_CONFIG.auth,
       ...(parsed.auth ?? {}),
     },
+    knownPages: parsed.knownPages ?? DEFAULT_CONFIG.knownPages,
   };
 }

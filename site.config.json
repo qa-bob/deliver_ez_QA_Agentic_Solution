@@ -1,23 +1,30 @@
-﻿{
-    "name":  "Deliver EZ",
-    "url":  "http://www.deliver-ez.com",
-    "description":  "",
-    "industry":  "",
-    "hasContactForm":  true,
-    "expectedNavItems":  [
-
-                         ],
-    "viewports":  [
-                      "desktop",
-                      "mobile",
-                      "tablet"
-                  ],
-    "skipVisual":  false,
-    "skipForms":  false,
-    "auth":  {
-                 "required":  false,
-                 "loginUrl":  "",
-                 "username":  "",
-                 "password":  ""
-             }
+{
+  "name": "Deliver EZ",
+  "url": "https://www.deliver-ez.com",
+  "description": "Smart Community Logistics Center — simple, flexible and secure control of online purchase logistics 24/7. Consolidates retailer, carrier, and shipping information so residents control how, when, and where packages are delivered.",
+  "industry": "Transportation, Logistics, Supply Chain and Storage",
+  "hasContactForm": false,
+  "expectedNavItems": ["Home", "News", "Media", "Job Opportunities", "Contact", "Investors"],
+  "knownPages": [
+    { "path": "/", "label": "Home" },
+    { "path": "/news/", "label": "News" },
+    { "path": "/news/media", "label": "Media" },
+    { "path": "/news/investors/", "label": "Investors" },
+    { "path": "/news/job-opportunities", "label": "Job Opportunities" },
+    { "path": "/news/contact/", "label": "Contact" }
+  ],
+  "viewports": [
+    "desktop",
+    "mobile",
+    "tablet"
+  ],
+  "skipVisual": false,
+  "skipForms": false,
+  "notes": "Nav items confirmed via Playwright test run (from page snapshot). Contact page at /news/contact/ is a contact-info page (team mailto links, no HTML form) — hasContactForm is false. Site uses http:// nav hrefs that 307-redirect to https:// — this is expected and treated as ok by the link checker. Homepage has a 3-column comparison table that causes horizontal overflow at mobile/tablet viewports — known site bug tracked as test.fixme in layout.spec.ts.",
+  "auth": {
+    "required": false,
+    "loginUrl": "",
+    "username": "",
+    "password": ""
+  }
 }

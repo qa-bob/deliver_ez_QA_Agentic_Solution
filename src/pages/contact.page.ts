@@ -151,4 +151,101 @@ export class ContactFormPage extends BasePage {
 
     return hasEmail && hasSubmit;
   }
+
+  // ── Contact presence (form OR info page) ────────────────────────────────────
+
+  /**
+   * Returns true if the current page has ANY form of contact presence:
+   *   - a traditional HTML contact form, OR
+   *   - a contact-info section with mailto links or team info
+   *
+   * Use this when you want to confirm the site has a contact page regardless
+   * of whether it uses a form widget.  For form-specific checks, use
+   * findContactForm() which returns null for info-only pages.
+   */
+  async hasContactInfo(): Promise<boolean> {
+    // Traditional form is sufficient
+    const form = await this.findContactForm();
+    if (form) return true;
+
+    // Contact-info page: any container that holds mailto links
+    const withMailto = this.page.locator('article, section, main, [class*="contact"]').filter({
+      has: this.page.locator('a[href^="mailto:"]'),
+    });
+    if (await withMailto.count() > 0) return true;
+
+    // Page has a "contact" heading AND meaningful body text
+    const contactHeading = this.page.locator('h1, h2, h3').filter({ hasText: /contact/i });
+    if (await contactHeading.count() > 0) {
+      const bodyText = (await this.page.locator('main, article, #content, body').first().textContent()) ?? '';
+      return bodyText.trim().length > 50;
+    }
+
+    return false;
+  }
+
+  // ── Site-specific navigation ──────────────────────────────────────────────────
+
+  /**
+   * Navigate to the contact page.
+   *
+   * Resolution order:
+   *  1. knownPages in site.config.json (label or path containing "contact")
+   *  2. Ordered list of common contact paths (Deliver EZ: /news/contact/)
+   *  3. Follow the first visible "Contact" link in the page nav
+   *
+   * Does NOT throw if the contact page cannot be found — callers should verify
+   * with findContactForm() after calling this method.
+   */
+  async navigateToContactPage(): Promise<void> {
+    // 1. Use knownPages from config
+    const knownPages = this.config.knownPages ?? [];
+    const contactEntry = knownPages.find(
+      (p) => /contact/i.test(p.label) || /contact/i.test(p.path)
+    );
+
+    if (contactEntry) {
+      const url = this.config.url.replace(/\/$/, '') + contactEntry.path;
+      try {
+        const resp = await this.page.goto(url, {
+          waitUntil: 'domcontentloaded',
+          timeout: 15_000,
+        });
+        if (resp && resp.status() < 400) return;
+      } catch {
+        // Fall through to path scan
+      }
+    }
+
+    // 2. Scan common contact paths (Deliver EZ uses /news/contact/)
+    const candidatePaths = [
+      '/news/contact/',
+      '/news/contact',
+      '/contact',
+      '/contact-us',
+      '/get-in-touch',
+      '/reach-out',
+    ];
+
+    for (const contactPath of candidatePaths) {
+      try {
+        const url = this.config.url.replace(/\/$/, '') + contactPath;
+        const resp = await this.page.goto(url, {
+          waitUntil: 'domcontentloaded',
+          timeout: 10_000,
+        });
+        if (resp && resp.status() < 400) return;
+      } catch {
+        // Try next path
+      }
+    }
+
+    // 3. Follow a "Contact" nav link from the homepage
+    await this.navigate();
+    const contactLink = this.page.locator('a').filter({ hasText: /contact/i }).first();
+    if ((await contactLink.count()) > 0) {
+      await contactLink.click();
+      await this.page.waitForLoadState('domcontentloaded');
+    }
+  }
 }

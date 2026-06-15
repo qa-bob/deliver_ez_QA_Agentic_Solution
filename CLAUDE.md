@@ -2,6 +2,8 @@
 
 This repository is a **Playwright + TypeScript regression test suite** for the website defined in `site.config.json`. It follows a **Page Object Model (POM)** architecture and is structured for agentic execution by Claude Code.
 
+See also: [AGENTS.md](./AGENTS.md) — agent documentation | [Skills.md](./Skills.md) — slash command reference | [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md) — contributor rules
+
 ---
 
 ## Project Purpose

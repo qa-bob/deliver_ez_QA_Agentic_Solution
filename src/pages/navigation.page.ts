@@ -145,7 +145,8 @@ export class NavigationPage extends BasePage {
         results.push({
           url: absoluteUrl,
           status: response.status(),
-          ok: response.ok(),
+          // Treat 3xx redirects as reachable — the resource exists, it just redirects
+          ok: response.status() < 400,
         });
       } catch {
         results.push({ url: absoluteUrl, status: 0, ok: false });
