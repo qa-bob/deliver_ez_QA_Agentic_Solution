@@ -99,7 +99,7 @@ test.describe('Homepage Features @functional', () => {
 
   test('CTA buttons have non-empty link text @functional', async ({ homePage }) => {
     const ctas = await homePage.getCTAButtons();
-    if (ctas.length === 0) return;
+    test.skip(ctas.length === 0, 'No CTA buttons found');
 
     for (const cta of ctas) {
       const text = ((await cta.textContent()) ?? '').trim();
