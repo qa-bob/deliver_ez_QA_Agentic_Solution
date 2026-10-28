@@ -152,28 +152,31 @@ test.describe('Contact Form @forms', () => {
       )
       .first();
 
-    // Intercept any navigation resulting from a form POST
-    let navigationTriggered = false;
-    page.on('request', (req) => {
-      if (req.resourceType() === 'document' && req.method() === 'POST') {
-        navigationTriggered = true;
+    // Block every non-GET request so nothing can actually be submitted, even
+    // if the form posts via fetch/XHR or validation is missing.
+    const submissionAttempts: string[] = [];
+    await page.route('**/*', async (route) => {
+      const req = route.request();
+      if (req.method() !== 'GET' && req.method() !== 'HEAD') {
+        submissionAttempts.push(`${req.method()} ${req.url()}`);
+        await route.abort();
+        return;
       }
+      await route.continue();
     });
 
     await submitBtn.click({ force: true });
 
-    // Allow validation UI to render
-    await page.waitForTimeout(500);
-
+    // The empty form should be stopped by validation before anything is sent
     expect(
-      navigationTriggered,
-      'Clicking submit on an empty form should NOT POST/navigate (browser validation should block it)'
-    ).toBeFalsy();
+      submissionAttempts.filter((a) => a.startsWith('POST')),
+      'Clicking submit on an empty form should NOT send a request (browser validation should block it)'
+    ).toHaveLength(0);
 
     // Verify HTML5 validity on any required field
     const firstRequired = form.locator('[required]').first();
     if ((await firstRequired.count()) > 0) {
-      const isValid = await firstRequired.evaluate<boolean>((el) => {
+      const isValid = await firstRequired.evaluate((el) => {
         return (el as HTMLInputElement).validity?.valid ?? true;
       });
       expect(isValid, 'Required fields should report invalid when empty').toBeFalsy();

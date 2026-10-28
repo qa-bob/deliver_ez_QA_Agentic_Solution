@@ -12,15 +12,15 @@ import { test, expect } from '@fixtures/site.fixture';
 test.describe('Responsive Layout @responsive', () => {
   // ── Horizontal scroll ───────────────────────────────────────────────────────
 
-  test('no horizontal scrollbar at mobile viewport @responsive', async ({ page, siteConfig }) => {
+  test('no horizontal scrollbar at mobile viewport @responsive', async ({ page, siteConfig }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-chrome', 'Runs only in the "mobile-chrome" project');
     // Known site issue: the homepage contains a 3-column comparison table whose
     // fixed column widths cause horizontal overflow at narrow viewports.
     // Remove test.fixme() once the site owner updates the table to be responsive.
     test.fixme(true, 'Known site bug: wide 3-column table causes horizontal overflow on deliver-ez.com at mobile widths');
 
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(siteConfig.url, { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle');
+    await page.goto(siteConfig.url, { waitUntil: 'load' });
 
     const hasHorizontalScroll = await page.evaluate<boolean>(() => {
       return document.documentElement.scrollWidth > document.documentElement.clientWidth;
@@ -33,14 +33,14 @@ test.describe('Responsive Layout @responsive', () => {
     ).toBeFalsy();
   });
 
-  test('no horizontal scrollbar at tablet viewport @responsive', async ({ page, siteConfig }) => {
+  test('no horizontal scrollbar at tablet viewport @responsive', async ({ page, siteConfig }, testInfo) => {
+    test.skip(testInfo.project.name !== 'tablet', 'Runs only in the "tablet" project');
     // Known site issue: same wide 3-column table causes overflow at tablet too.
     // Remove test.fixme() once the site owner updates the table to be responsive.
     test.fixme(true, 'Known site bug: wide 3-column table causes horizontal overflow on deliver-ez.com at tablet widths');
 
     await page.setViewportSize({ width: 768, height: 1024 });
-    await page.goto(siteConfig.url, { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle');
+    await page.goto(siteConfig.url, { waitUntil: 'load' });
 
     const hasHorizontalScroll = await page.evaluate<boolean>(() => {
       return document.documentElement.scrollWidth > document.documentElement.clientWidth;
@@ -54,7 +54,8 @@ test.describe('Responsive Layout @responsive', () => {
 
   // ── Text readability ─────────────────────────────────────────────────────────
 
-  test('text is readable (font-size >= 12px) on mobile @responsive', async ({ page, siteConfig }) => {
+  test('text is readable (font-size >= 12px) on mobile @responsive', async ({ page, siteConfig }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-chrome', 'Runs only in the "mobile-chrome" project');
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(siteConfig.url, { waitUntil: 'domcontentloaded' });
 
@@ -82,7 +83,8 @@ test.describe('Responsive Layout @responsive', () => {
 
   // ── Image alt attributes ─────────────────────────────────────────────────────
 
-  test('images have alt attributes @responsive', async ({ page, siteConfig }) => {
+  test('images have alt attributes @responsive', async ({ page, siteConfig }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium-desktop', 'Runs only in the "chromium-desktop" project');
     // Known site bug: logo-alt.png and floating-blurb.png are missing alt attributes.
     // Remove test.fixme() once the site owner adds alt text to those images.
     test.fixme(true, 'Known site bug: 2 images on deliver-ez.com are missing alt attributes (logo-alt.png, floating-blurb.png)');
@@ -115,7 +117,8 @@ test.describe('Responsive Layout @responsive', () => {
 
   // ── Viewport meta tag ────────────────────────────────────────────────────────
 
-  test('page has proper meta viewport tag @responsive', async ({ page, siteConfig }) => {
+  test('page has proper meta viewport tag @responsive', async ({ page, siteConfig }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium-desktop', 'Runs only in the "chromium-desktop" project');
     await page.goto(siteConfig.url, { waitUntil: 'domcontentloaded' });
 
     const viewportContent = await page

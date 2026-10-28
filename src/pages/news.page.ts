@@ -55,7 +55,7 @@ export class NewsPage extends BasePage {
   async navigateToNews(): Promise<void> {
     const url = this.config.url.replace(/\/$/, '') + NewsPage.NEWS_PATH;
     await this.page.goto(url, { waitUntil: 'domcontentloaded' });
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('load');
   }
 
   // ── Post data ─────────────────────────────────────────────────────────────────
